@@ -1,10 +1,11 @@
 .container {
     width: 700px;
     height: 200px;
+    background-color: #140A69;
 }
 
 .bar {
-    fill: green;
+    fill: #DFDFF5;
 }
 
 h1 {

@@ -1,9 +1,3 @@
-interface DataType {
-  id: string;
-  value: number;
-  region: string;
-}
-
 enum PaymentMethods {
   VPAY = "VPAY",
   CREDITCARD = "CREDITCARD",
@@ -59,6 +53,7 @@ interface D3Data {
     };
   });
 
+  console.log(formattedArray);
   renderD3(formattedArray);
 })();
 
@@ -70,10 +65,12 @@ function renderD3(parkingData: D3Data[]) {
     .padding(0.1);
   const yScale = d3.scaleLinear().domain([0, 260]).range([200, 0]);
 
+  const axis = d3.axisBottom(xScale);
+
   const container = d3
     .select("svg")
     .classed("container", true)
-    .style("border", "1px solid green");
+    .style("border", "1px solid #DFDFF5");
 
   // Bars
   container
@@ -81,6 +78,7 @@ function renderD3(parkingData: D3Data[]) {
     .data(parkingData)
     .enter()
     .append("rect")
+    .text((data) => data.paymentMethodTitle)
     .classed("bar", true)
     .attr("width", xScale.bandwidth())
     .attr("height", (data) => 200 - yScale(data.areas.length))
