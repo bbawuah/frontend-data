@@ -1,0 +1,32 @@
+// DEFAULT STYLING
+// **ALLE MODULES INLADEN IN DEZE FILE
+@import './footer';
+@import './header';
+
+body {
+  font-family: $font;
+}
+
+.hello {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  .greeting{
+
+    h1 {
+      font-size: 3rem;
+    }
+    
+    h1, p{
+      text-align: center;
+    }
+    
+    div{
+      display: flex;
+      justify-content: center;
+    }
+  }
+  }
+  
