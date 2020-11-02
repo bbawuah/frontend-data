@@ -1,11 +1,16 @@
+body{
+    font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
+}
+
 .container {
     width: 700px;
-    height: 200px;
-    background-color: #140A69;
+    height: 300px;
+    background-color: #222;
+    border-radius: 5px;
 }
 
 .bar {
-    fill: #DFDFF5;
+    fill: rgb(214, 214, 214);
 }
 
 h1 {

@@ -17,9 +17,9 @@ var PaymentMethods;
     PaymentMethods["MOBIEL"] = "MOBIEL";
     PaymentMethods["AMEX"] = "AMEX";
     PaymentMethods["DIP_TAP_GO"] = "DIP-TAP&GO";
-    PaymentMethods["DIP_GO"] = "DIP_GO";
+    PaymentMethods["DIP_GO"] = "DIP-GO";
     PaymentMethods["XXIMIO"] = "XXIMIO";
-    PaymentMethods["DINERS_CLUB"] = "DINERS_CLUB";
+    PaymentMethods["DINERS_CLUB"] = "DINERS-CLUB";
 })(PaymentMethods || (PaymentMethods = {}));
 (async () => {
     const res = await fetch("https://opendata.rdw.nl/resource/r3rs-ibz5.json");
@@ -41,12 +41,8 @@ function renderD3(parkingData) {
         .domain(parkingData.map((data) => data.paymentMethodTitle))
         .rangeRound([0, 700])
         .padding(0.1);
-    const yScale = d3.scaleLinear().domain([0, 260]).range([200, 0]);
-    const axis = d3.axisBottom(xScale);
-    const container = d3
-        .select("svg")
-        .classed("container", true)
-        .style("border", "1px solid #DFDFF5");
+    const yScale = d3.scaleLinear().domain([0, 260]).range([300, 0]);
+    const container = d3.select("svg").classed("container", true);
     // Bars
     container
         .selectAll(".bar")
@@ -56,9 +52,11 @@ function renderD3(parkingData) {
         .text((data) => data.paymentMethodTitle)
         .classed("bar", true)
         .attr("width", xScale.bandwidth())
-        .attr("height", (data) => 200 - yScale(data.areas.length))
+        .attr("height", (data) => 300 - yScale(data.areas.length))
         .attr("x", (data) => xScale(data.paymentMethodTitle))
         .attr("y", (data) => yScale(data.areas.length));
+    container.append("g").attr("transform", "translate(0,300)"); // This controls the vertical position of the Axis
+    // .call(d3.axisBottom(xScale));
 }
 function getPaymentMethods(json) {
     const array = json.map((item) => {

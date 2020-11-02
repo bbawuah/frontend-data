@@ -16,9 +16,9 @@ enum PaymentMethods {
   MOBIEL = "MOBIEL",
   AMEX = "AMEX",
   DIP_TAP_GO = "DIP-TAP&GO",
-  DIP_GO = "DIP_GO",
+  DIP_GO = "DIP-GO",
   XXIMIO = "XXIMIO",
-  DINERS_CLUB = "DINERS_CLUB",
+  DINERS_CLUB = "DINERS-CLUB",
 }
 
 interface AreaType {
@@ -52,7 +52,6 @@ interface D3Data {
       areas: paymentMethodAreas,
     };
   });
-
   console.log(formattedArray);
   renderD3(formattedArray);
 })();
@@ -63,14 +62,9 @@ function renderD3(parkingData: D3Data[]) {
     .domain(parkingData.map((data) => data.paymentMethodTitle))
     .rangeRound([0, 700])
     .padding(0.1);
-  const yScale = d3.scaleLinear().domain([0, 260]).range([200, 0]);
+  const yScale = d3.scaleLinear().domain([0, 260]).range([300, 0]);
 
-  const axis = d3.axisBottom(xScale);
-
-  const container = d3
-    .select("svg")
-    .classed("container", true)
-    .style("border", "1px solid #DFDFF5");
+  const container = d3.select("svg").classed("container", true);
 
   // Bars
   container
@@ -81,9 +75,12 @@ function renderD3(parkingData: D3Data[]) {
     .text((data) => data.paymentMethodTitle)
     .classed("bar", true)
     .attr("width", xScale.bandwidth())
-    .attr("height", (data) => 200 - yScale(data.areas.length))
+    .attr("height", (data) => 300 - yScale(data.areas.length))
     .attr("x", (data) => xScale(data.paymentMethodTitle))
     .attr("y", (data) => yScale(data.areas.length));
+
+  container.append("g").attr("transform", "translate(0,300)"); // This controls the vertical position of the Axis
+  // .call(d3.axisBottom(xScale));
 }
 
 function getPaymentMethods(json: AreaType[]): Set<string> {
