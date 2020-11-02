@@ -1,0 +1,18 @@
+.container {
+    width: 700px;
+    height: 200px;
+}
+
+.bar {
+    fill: green;
+}
+
+h1 {
+    text-align: center;
+}
+
+.wrapper {
+    margin: 5rem auto;
+    display: flex;
+    justify-content: center;
+}
