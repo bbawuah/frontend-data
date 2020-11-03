@@ -57,12 +57,12 @@ interface D3Data {
 })();
 
 function renderD3(parkingData: D3Data[]) {
-  const xScale = d3
+  const yScale = d3
     .scaleBand()
     .domain(parkingData.map((data) => data.paymentMethodTitle))
-    .rangeRound([0, 700])
+    .rangeRound([0, 500])
     .padding(0.1);
-  const yScale = d3.scaleLinear().domain([0, 260]).range([300, 0]);
+  const xScale = d3.scaleLinear().domain([0, 500]).range([0, 700]);
 
   const container = d3.select("svg").classed("container", true);
 
@@ -74,13 +74,15 @@ function renderD3(parkingData: D3Data[]) {
     .append("rect")
     .text((data) => data.paymentMethodTitle)
     .classed("bar", true)
-    .attr("width", xScale.bandwidth())
-    .attr("height", (data) => 300 - yScale(data.areas.length))
-    .attr("x", (data) => xScale(data.paymentMethodTitle))
-    .attr("y", (data) => yScale(data.areas.length));
+    .attr("width", (data) => xScale(data.areas.length))
+    .attr("height", yScale.bandwidth())
+    .attr("x", (data) => 700 - xScale(data.areas.length))
+    .attr("y", (data) => yScale(data.paymentMethodTitle));
 
-  container.append("g").attr("transform", "translate(0,300)"); // This controls the vertical position of the Axis
-  // .call(d3.axisBottom(xScale));
+  container
+    .append("g")
+    .attr("transform", "translate(110,0)")
+    .call(d3.axisLeft(yScale));
 }
 
 function getPaymentMethods(json: AreaType[]): Set<string> {
