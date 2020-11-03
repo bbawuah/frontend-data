@@ -41,7 +41,7 @@ function renderD3(parkingData) {
         .domain(parkingData.map((data) => data.paymentMethodTitle))
         .rangeRound([0, 500])
         .padding(0.1);
-    const xScale = d3.scaleLinear().domain([0, 500]).range([0, 700]);
+    const xScale = d3.scaleLinear().domain([0, 300]).range([0, 700]);
     const container = d3.select("svg").classed("container", true);
     // Bars
     container
