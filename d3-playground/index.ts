@@ -35,6 +35,41 @@ interface D3Data {
   areas: AreaType[];
 }
 
+interface Provincie {
+  arcs: number[];
+  id: string;
+  properties: {
+    FID: string;
+    jrstatcode: string;
+    rubriek: string;
+    statcode: string;
+    statnaam: string;
+  };
+  type: string;
+}
+
+interface GEOType {
+  provincie_2020: {
+    geometries: Provincie[];
+    type: string;
+  };
+}
+
+interface GEOData {
+  arcs: number[][];
+  bbox: number[];
+  objects: {
+    provincie_2020: {
+      geometries: Provincie[];
+      type: string;
+    };
+  };
+  transform: {
+    scale: number[];
+    translate: number[];
+  };
+}
+
 (async () => {
   const res = await fetch("https://opendata.rdw.nl/resource/r3rs-ibz5.json");
 
@@ -54,6 +89,18 @@ interface D3Data {
   });
   console.log(formattedArray);
   renderD3(formattedArray);
+
+  const GEOres = await fetch(
+    "https://cartomap.github.io/nl/wgs84/provincie_2020.topojson"
+  );
+  const GEOjson = await GEOres.json();
+
+  const bbox = [11.825, 53.7253321, -68.6255319, 7.2274985];
+
+  GEOjson.bbox = bbox;
+  console.log(GEOjson);
+
+  renderGEO(GEOjson);
 })();
 
 function renderD3(parkingData: D3Data[]) {
@@ -110,4 +157,71 @@ function getPaymentMethods(json: AreaType[]): Set<string> {
   });
 
   return new Set(array);
+}
+
+function renderGEO(data: any) {
+  const path = d3.geoPath();
+  const zoom = d3.zoom().scaleExtent([1, 8]).on("zoom", zoomed);
+
+  const width = 975;
+  const height = 610;
+
+  const svg = d3.select(".geo-chart").classed("geo", true).on("click", reset);
+
+  const g = svg.append("g");
+
+  const projection = d3.geoMercator().scale(6000).center([5.116667, 52.17]);
+  const pathGenerator = path.projection(projection);
+
+  const provincies = g
+    .append("g")
+    .attr("fill", "#444")
+    .attr("cursor", "pointer")
+    .selectAll("path")
+    .data((topojson.feature(data, data.objects.provincie_2020) as any).features)
+    .join("path")
+    .on("click", clicked)
+    .attr("d", path);
+
+  provincies.append("title").text((data: any) => data.properties.statname);
+
+  svg.call(zoom);
+
+  function reset() {
+    provincies.transition().style("fill", null);
+    svg
+      .transition()
+      .duration(750)
+      .call(
+        zoom.transform as any,
+        d3.zoomIdentity,
+        d3.zoomTransform(svg.node() as any).invert([width / 2, height / 2])
+      );
+  }
+
+  function clicked(event: any, d: any) {
+    const [[x0, y0], [x1, y1]] = path.bounds(d);
+    event.stopPropagation();
+    provincies.transition().style("fill", null);
+    d3.select(this).transition().style("fill", "red");
+    svg
+      .transition()
+      .duration(750)
+      .call(
+        zoom.transform as any,
+        d3.zoomIdentity
+          .translate(width / 2, height / 2)
+          .scale(
+            Math.min(8, 0.9 / Math.max((x1 - x0) / width, (y1 - y0) / height))
+          )
+          .translate(-(x0 + x1) / 2, -(y0 + y1) / 2),
+        d3.pointer(event, svg.node() as any)
+      );
+  }
+
+  function zoomed(event: any) {
+    const { transform } = event;
+    g.attr("transform", transform);
+    g.attr("stroke-width", 1 / transform.k);
+  }
 }

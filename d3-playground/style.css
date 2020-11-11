@@ -17,8 +17,18 @@ h1 {
     text-align: center;
 }
 
-.wrapper {
+.eerste-grafiek {
     margin: 5rem auto;
     display: flex;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
+}
+
+
+.geo {
+    width: 700px;
+    height: 500px;
+    /* padding-bottom: 1rem; */
+    border-radius: 5px;
 }

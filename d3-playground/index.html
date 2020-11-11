@@ -5,16 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <title>Document</title>
-    <script src="http://d3js.org/d3.v4.min.js"></script>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
     <script src="https://d3js.org/d3-scale.v3.min.js"></script>
     <script src="https://d3js.org/d3-axis.v2.min.js"></script>
     <script src="https://d3js.org/d3-array.v2.min.js"></script>
+    <script src="https://unpkg.com/topojson@3.0.2/dist/topojson.min.js"></script>
+    <script src="https://d3js.org/d3-zoom.v2.min.js"></script>
 </head>
 <body>
     <h1>Aantal parkeergebieden per betalingsoptie</h1>
-    <div class="wrapper">
-        <svg ></svg>
-    </div>
+    <div class="eerste-grafiek">
+        <svg></svg>
+
+            <svg class="geo-chart"></svg>
+
+            </div>
     <script src="js/index.js"></script>
 </body>
 </html>
