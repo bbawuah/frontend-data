@@ -273,8 +273,6 @@ function startDateData(arr: SellingPoints[]) {
     };
   });
 
-  console.log(typedFilterDatum);
-
   return typedFilterDatum;
 }
 
@@ -286,6 +284,8 @@ function renderGEO(
 ) {
   const path = d3.geoPath();
   const zoom = d3.zoom().scaleExtent([1, 8]).on("zoom", zoomed);
+
+  console.log(sellingPoints);
 
   const radiusScale = d3.scaleSqrt();
 
@@ -364,9 +364,6 @@ function renderGEO(
   function mouseMove(event: any, data: SellingPoints) {
     d3.select(this).style("fill", "black");
 
-    console.log(data);
-    console.log(paymentData);
-
     const rawPaymentArray = paymentData.map((pData) => {
       const filter = pData.areas.filter(
         (area) => area.areamanagerid === data.area
@@ -376,8 +373,6 @@ function renderGEO(
     });
 
     const cleanPaymentArray = rawPaymentArray.filter((d) => d.length !== 0);
-    console.log(cleanPaymentArray);
-    console.log("mouse over");
     tooltip
       .classed("hidden", false)
       .attr(
@@ -399,7 +394,6 @@ function renderGEO(
 
   function mouseOut() {
     d3.select(this).style("fill", "#fff");
-    console.log("mouse out");
 
     tooltip.classed("hidden", true);
   }
@@ -420,7 +414,7 @@ function renderGEO(
     const [[x0, y0], [x1, y1]] = path.bounds(d);
     event.stopPropagation();
     provincies.transition().style("fill", null);
-    d3.select(this).transition().style("fill", "red");
+    d3.select(this).transition().style("fill", "#AAA");
     svg
       .transition()
       .duration(750)

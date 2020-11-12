@@ -5,9 +5,7 @@
   "main": "index.js",
   "scripts": {
     "tsc": "tsc",
-    "watch": "tsc -w",
-    "dev": "webpack serve",
-    "build": "webpack"
+    "watch": "tsc -w"
   },
   "keywords": [],
   "author": "",
