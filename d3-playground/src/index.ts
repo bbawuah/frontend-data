@@ -124,6 +124,8 @@ interface SellingPoints {
   areas: Area[];
 }
 
+const selectOption = document.getElementById("select") as HTMLTextAreaElement;
+
 (async () => {
   const paymentMethodsResponse = await fetch(
     "https://opendata.rdw.nl/resource/r3rs-ibz5.json"
@@ -173,7 +175,30 @@ interface SellingPoints {
     };
   });
 
-  renderGEO(GEOjson, formattedArraySellingPoints, paymentData);
+  renderGEO(
+    d3.select(".geo-chart"),
+    GEOjson,
+    formattedArraySellingPoints,
+    paymentData
+  );
+
+  selectOption.addEventListener("change", () => {
+    if (selectOption.value === "payment") {
+      renderGEO(
+        d3.select(".geo-chart"),
+        GEOjson,
+        formattedArraySellingPoints,
+        paymentData
+      );
+    } else {
+      renderGEO(
+        d3.select(".geo-chart"),
+        GEOjson,
+        startDateData(formattedArraySellingPoints),
+        paymentData
+      );
+    }
+  });
 })();
 
 function renderD3(parkingData: D3Data[]) {
@@ -232,7 +257,29 @@ function getPaymentMethods(json: AreaType[]): Set<string> {
   return new Set(array);
 }
 
+function startDateData(arr: SellingPoints[]) {
+  const filterOpDatum = arr
+    .map((data) =>
+      data.areas.filter((data) => {
+        return data.startdatesellingpoint.includes("2019");
+      })
+    )
+    .filter((d) => d.length !== 0);
+
+  const typedFilterDatum = filterOpDatum.map((arr) => {
+    return {
+      area: arr[0].areamanagerid,
+      areas: arr,
+    };
+  });
+
+  console.log(typedFilterDatum);
+
+  return typedFilterDatum;
+}
+
 function renderGEO(
+  selection: d3.Selection<d3.BaseType, unknown, HTMLElement, any>,
   data: any,
   sellingPoints: SellingPoints[],
   paymentData: D3Data[]
@@ -245,9 +292,16 @@ function renderGEO(
   const width = 975;
   const height = 610;
 
-  const svg = d3.select(".geo-chart").classed("geo", true).on("click", reset);
+  const svg = selection.classed("geo", true).on("click", reset);
 
-  const g = svg.append("g");
+  let g = (svg.selectAll("g") as d3.Selection<
+    SVGGElement,
+    unknown,
+    d3.BaseType,
+    unknown
+  >).data([null]);
+
+  g = g.enter().append("g").merge(g);
 
   const projection = d3.geoMercator().scale(6000).center([5.116667, 52.17]);
   const pathGenerator = path.projection(projection);
@@ -270,8 +324,16 @@ function renderGEO(
     .on("click", clicked);
 
   // Add circles:
-  g.selectAll("myCircles")
-    .data(sellingPoints)
+  const circles = (g.selectAll("myCircles") as d3.Selection<
+    SVGCircleElement,
+    SellingPoints,
+    SVGGElement,
+    unknown
+  >).data(sellingPoints);
+
+  circles.exit().remove();
+
+  circles
     .enter()
     .append("circle")
     .attr("cx", (data: SellingPoints) => {
@@ -289,6 +351,7 @@ function renderGEO(
     .attr("r", (data: SellingPoints) => {
       return radiusScale(data.areas.length);
     })
+    .merge(circles)
     .style("fill", "#fff")
     .attr("stroke-width", 3)
     .attr("fill-opacity", 0.4)
@@ -326,7 +389,11 @@ function renderGEO(
           "px"
       ).html(`
       Aantal verkooppunten: ${data.areas.length}\n
-      Bekende betalingsmethodes: ${cleanPaymentArray.map((d) => ` ${d}`)}
+      Bekende betalingsmethodes: ${
+        cleanPaymentArray.map((d) => ` ${d}`)
+          ? cleanPaymentArray.map((d) => ` ${d}`)
+          : "Niet bekend"
+      }
       `);
   }
 
