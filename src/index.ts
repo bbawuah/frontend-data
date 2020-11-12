@@ -172,10 +172,14 @@ const selectOption = document.getElementById("select") as HTMLTextAreaElement;
     };
   });
 
+  const cleanFormattedDataSet = formattedArraySellingPoints.filter(
+    (item) => item.areas.length > 0
+  );
+  console.log(cleanFormattedDataSet);
   renderGEO(
     d3.select(".geo-chart"),
     GEOjson,
-    formattedArraySellingPoints,
+    cleanFormattedDataSet,
     paymentData
   );
 
@@ -184,14 +188,14 @@ const selectOption = document.getElementById("select") as HTMLTextAreaElement;
       renderGEO(
         d3.select(".geo-chart"),
         GEOjson,
-        formattedArraySellingPoints,
+        cleanFormattedDataSet,
         paymentData
       );
     } else {
       renderGEO(
         d3.select(".geo-chart"),
         GEOjson,
-        startDateData(formattedArraySellingPoints),
+        startDateData(cleanFormattedDataSet),
         paymentData
       );
     }
@@ -337,7 +341,6 @@ function renderGEO(
     .enter()
     .append("circle")
     .attr("cx", (data: SellingPoints) => {
-      console.log(data.areas);
       return projection([
         parseFloat(data.areas[0].location.longitude),
         parseFloat(data.areas[0].location.latitude),

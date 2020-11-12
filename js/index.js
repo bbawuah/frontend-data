@@ -85,13 +85,15 @@ const selectOption = document.getElementById("select");
             areas: paymentMethodAreas,
         };
     });
-    renderGEO(d3.select(".geo-chart"), GEOjson, formattedArraySellingPoints, paymentData);
+    const cleanFormattedDataSet = formattedArraySellingPoints.filter((item) => item.areas.length > 0);
+    console.log(cleanFormattedDataSet);
+    renderGEO(d3.select(".geo-chart"), GEOjson, cleanFormattedDataSet, paymentData);
     selectOption.addEventListener("change", () => {
         if (selectOption.value === "payment") {
-            renderGEO(d3.select(".geo-chart"), GEOjson, formattedArraySellingPoints, paymentData);
+            renderGEO(d3.select(".geo-chart"), GEOjson, cleanFormattedDataSet, paymentData);
         }
         else {
-            renderGEO(d3.select(".geo-chart"), GEOjson, startDateData(formattedArraySellingPoints), paymentData);
+            renderGEO(d3.select(".geo-chart"), GEOjson, startDateData(cleanFormattedDataSet), paymentData);
         }
     });
 })();
@@ -186,7 +188,6 @@ function renderGEO(selection, geoData, sellingPoints, paymentData) {
         .enter()
         .append("circle")
         .attr("cx", (data) => {
-        console.log(data.areas);
         return projection([
             parseFloat(data.areas[0].location.longitude),
             parseFloat(data.areas[0].location.latitude),
