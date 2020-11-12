@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "webpack",
-    "dev": "webpack-dev-server --mode development --open",
+    "dev": "webpack-serve",
     "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix"
   },
   "keywords": [],
@@ -34,7 +34,7 @@
     "tslint": "^6.1.2",
     "typescript": "^3.9.7",
     "webpack": "^4.43.0",
-    "webpack-cli": "^3.3.12"
+    "webpack-cli": "^4.2.0"
   },
   "dependencies": {
     "@babel/polyfill": "^7.10.4",

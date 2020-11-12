@@ -21,6 +21,43 @@ enum PaymentMethods {
   DINERS_CLUB = "DINERS-CLUB",
 }
 
+enum AreaManagerID {
+  AM1 = "299",
+  AM2 = "518",
+  AM3 = "677",
+  AM4 = "243",
+  AM5 = "243",
+  AM6 = "402",
+  AM7 = "642",
+  AM8 = "202",
+  AM9 = "439",
+  AM10 = "546",
+  AM11 = "715",
+  AM12 = "867",
+  AM13 = "363",
+  AM14 = "384",
+  AM15 = "307",
+  AM16 = "361",
+  AM17 = "935",
+  AM18 = "1900",
+  AM19 = "855",
+  AM20 = "203",
+  AM21 = "106",
+  AM22 = "777",
+  AM23 = "118",
+  AM24 = "281",
+  AM25 = "150",
+  AM26 = "344",
+  AM27 = "599",
+  AM28 = "858",
+  AM29 = "153",
+  AM30 = "606",
+  AM31 = "1942",
+  AM32 = "1949",
+  AM33 = "664",
+  AM34 = "826",
+}
+
 interface AreaType {
   areaid: string;
   areamanagerid: string;
@@ -70,15 +107,34 @@ interface GEOData {
   };
 }
 
-(async () => {
-  const res = await fetch("https://opendata.rdw.nl/resource/r3rs-ibz5.json");
+interface Area {
+  areamanagerid: string;
+  enddatesellingpoint: string;
+  sellingpointdesc: string;
+  location: {
+    human_address: string;
+    latitude: string;
+    longitude: string;
+  };
+  sellingpointid: string;
+  startdatesellingpoint: string;
+}
+interface SellingPoints {
+  area: string;
+  areas: Area[];
+}
 
-  const json = await res.json();
+(async () => {
+  const paymentMethodsResponse = await fetch(
+    "https://opendata.rdw.nl/resource/r3rs-ibz5.json"
+  );
+
+  const paymentMethodsJson = await paymentMethodsResponse.json();
 
   const paymentMethods = Object.values(PaymentMethods);
 
-  const formattedArray: D3Data[] = paymentMethods.map((payment) => {
-    const paymentMethodAreas = json.filter(
+  const paymentData: D3Data[] = paymentMethods.map((payment) => {
+    const paymentMethodAreas = paymentMethodsJson.filter(
       (item: AreaType) => item.paymentmethod.toUpperCase() === payment
     );
 
@@ -87,8 +143,7 @@ interface GEOData {
       areas: paymentMethodAreas,
     };
   });
-  console.log(formattedArray);
-  renderD3(formattedArray);
+  renderD3(paymentData);
 
   const GEOres = await fetch(
     "https://cartomap.github.io/nl/wgs84/provincie_2020.topojson"
@@ -98,9 +153,27 @@ interface GEOData {
   const bbox = [11.825, 53.7253321, -68.6255319, 7.2274985];
 
   GEOjson.bbox = bbox;
-  console.log(GEOjson);
 
-  renderGEO(GEOjson);
+  const sellingPointsResponse = await fetch(
+    "https://opendata.rdw.nl/resource/cgqw-pfbp.json"
+  );
+
+  const sellingPointsJson = await sellingPointsResponse.json();
+
+  const areas = Object.values(AreaManagerID);
+
+  const formattedArraySellingPoints: SellingPoints[] = areas.map((area) => {
+    const paymentMethodAreas = sellingPointsJson.filter(
+      (item: any) => item.areamanagerid === area
+    );
+
+    return {
+      area: area,
+      areas: paymentMethodAreas,
+    };
+  });
+
+  renderGEO(GEOjson, formattedArraySellingPoints, paymentData);
 })();
 
 function renderD3(parkingData: D3Data[]) {
@@ -159,9 +232,15 @@ function getPaymentMethods(json: AreaType[]): Set<string> {
   return new Set(array);
 }
 
-function renderGEO(data: any) {
+function renderGEO(
+  data: any,
+  sellingPoints: SellingPoints[],
+  paymentData: D3Data[]
+) {
   const path = d3.geoPath();
   const zoom = d3.zoom().scaleExtent([1, 8]).on("zoom", zoomed);
+
+  const radiusScale = d3.scaleSqrt();
 
   const width = 975;
   const height = 610;
@@ -173,19 +252,90 @@ function renderGEO(data: any) {
   const projection = d3.geoMercator().scale(6000).center([5.116667, 52.17]);
   const pathGenerator = path.projection(projection);
 
+  radiusScale.domain([0, 400]).range([0, 10]);
+
+  const tooltip = d3
+    .select(".map-container")
+    .append("div")
+    .attr("class", "hidden tooltip");
+
   const provincies = g
     .append("g")
-    .attr("fill", "#444")
+    .attr("fill", "#8d99ae")
     .attr("cursor", "pointer")
     .selectAll("path")
     .data((topojson.feature(data, data.objects.provincie_2020) as any).features)
     .join("path")
-    .on("click", clicked)
-    .attr("d", path);
+    .attr("d", path)
+    .on("click", clicked);
 
-  provincies.append("title").text((data: any) => data.properties.statname);
+  // Add circles:
+  g.selectAll("myCircles")
+    .data(sellingPoints)
+    .enter()
+    .append("circle")
+    .attr("cx", (data: SellingPoints) => {
+      return projection([
+        parseFloat(data.areas[0].location.longitude),
+        parseFloat(data.areas[0].location.latitude),
+      ])[0];
+    })
+    .attr("cy", function (data: SellingPoints) {
+      return projection([
+        parseFloat(data.areas[0].location.longitude),
+        parseFloat(data.areas[0].location.latitude),
+      ])[1];
+    })
+    .attr("r", (data: SellingPoints) => {
+      return radiusScale(data.areas.length);
+    })
+    .style("fill", "#fff")
+    .attr("stroke-width", 3)
+    .attr("fill-opacity", 0.4)
+    .attr("cursor", "pointer")
+    .on("mousemove", mouseMove)
+    .on("mouseout", mouseOut);
 
   svg.call(zoom);
+
+  function mouseMove(event: any, data: SellingPoints) {
+    d3.select(this).style("fill", "black");
+
+    console.log(data);
+    console.log(paymentData);
+
+    const rawPaymentArray = paymentData.map((pData) => {
+      const filter = pData.areas.filter(
+        (area) => area.areamanagerid === data.area
+      );
+      const methods = filter.map((d) => d.paymentmethod);
+      return Array.from(new Set(methods));
+    });
+
+    const cleanPaymentArray = rawPaymentArray.filter((d) => d.length !== 0);
+    console.log(cleanPaymentArray);
+    console.log("mouse over");
+    tooltip
+      .classed("hidden", false)
+      .attr(
+        "style",
+        "left:" +
+          (() => event.clientX + 20) +
+          "px; top:" +
+          (() => event.clientX + 20) +
+          "px"
+      ).html(`
+      Aantal verkooppunten: ${data.areas.length}\n
+      Bekende betalingsmethodes: ${cleanPaymentArray.map((d) => ` ${d}`)}
+      `);
+  }
+
+  function mouseOut() {
+    d3.select(this).style("fill", "#fff");
+    console.log("mouse out");
+
+    tooltip.classed("hidden", true);
+  }
 
   function reset() {
     provincies.transition().style("fill", null);
