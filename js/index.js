@@ -186,7 +186,7 @@ function renderGEO(selection, geoData, sellingPoints, paymentData) {
         .enter()
         .append("circle")
         .attr("cx", (data) => {
-        console.log(data.areas[0]);
+        console.log(data.areas);
         return projection([
             parseFloat(data.areas[0].location.longitude),
             parseFloat(data.areas[0].location.latitude),

@@ -337,7 +337,7 @@ function renderGEO(
     .enter()
     .append("circle")
     .attr("cx", (data: SellingPoints) => {
-      console.log(data.areas[0]);
+      console.log(data.areas);
       return projection([
         parseFloat(data.areas[0].location.longitude),
         parseFloat(data.areas[0].location.latitude),
