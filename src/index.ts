@@ -130,8 +130,17 @@ const selectOption = document.getElementById("select") as HTMLTextAreaElement;
   const paymentMethodsResponse = await fetch(
     "https://opendata.rdw.nl/resource/r3rs-ibz5.json"
   );
-
   const paymentMethodsJson = await paymentMethodsResponse.json();
+
+  const GEOres = await fetch(
+    "https://cartomap.github.io/nl/wgs84/provincie_2020.topojson"
+  );
+  const GEOjson = await GEOres.json();
+
+  const sellingPointsResponse = await fetch(
+    "https://opendata.rdw.nl/resource/cgqw-pfbp.json"
+  );
+  const sellingPointsJson = await sellingPointsResponse.json();
 
   const paymentMethods = Object.values(PaymentMethods);
 
@@ -145,23 +154,11 @@ const selectOption = document.getElementById("select") as HTMLTextAreaElement;
       areas: paymentMethodAreas,
     };
   });
+
   renderD3(paymentData);
 
-  const GEOres = await fetch(
-    "https://cartomap.github.io/nl/wgs84/provincie_2020.topojson"
-  );
-  const GEOjson = await GEOres.json();
-
   const bbox = [11.825, 53.7253321, -68.6255319, 7.2274985];
-
   GEOjson.bbox = bbox;
-
-  const sellingPointsResponse = await fetch(
-    "https://opendata.rdw.nl/resource/cgqw-pfbp.json"
-  );
-
-  const sellingPointsJson = await sellingPointsResponse.json();
-
   const areas = Object.values(AreaManagerID);
 
   const formattedArraySellingPoints: SellingPoints[] = areas.map((area) => {
@@ -278,7 +275,7 @@ function startDateData(arr: SellingPoints[]) {
 
 function renderGEO(
   selection: d3.Selection<d3.BaseType, unknown, HTMLElement, any>,
-  data: any,
+  geoData: any,
   sellingPoints: SellingPoints[],
   paymentData: D3Data[]
 ) {
@@ -318,7 +315,10 @@ function renderGEO(
     .attr("fill", "#8d99ae")
     .attr("cursor", "pointer")
     .selectAll("path")
-    .data((topojson.feature(data, data.objects.provincie_2020) as any).features)
+    .data(
+      (topojson.feature(geoData, geoData.objects.provincie_2020) as any)
+        .features
+    )
     .join("path")
     .attr("d", path)
     .on("click", clicked);
@@ -337,6 +337,7 @@ function renderGEO(
     .enter()
     .append("circle")
     .attr("cx", (data: SellingPoints) => {
+      console.log(data.areas[0]);
       return projection([
         parseFloat(data.areas[0].location.longitude),
         parseFloat(data.areas[0].location.latitude),

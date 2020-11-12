@@ -62,6 +62,10 @@ const selectOption = document.getElementById("select");
 (async () => {
     const paymentMethodsResponse = await fetch("https://opendata.rdw.nl/resource/r3rs-ibz5.json");
     const paymentMethodsJson = await paymentMethodsResponse.json();
+    const GEOres = await fetch("https://cartomap.github.io/nl/wgs84/provincie_2020.topojson");
+    const GEOjson = await GEOres.json();
+    const sellingPointsResponse = await fetch("https://opendata.rdw.nl/resource/cgqw-pfbp.json");
+    const sellingPointsJson = await sellingPointsResponse.json();
     const paymentMethods = Object.values(PaymentMethods);
     const paymentData = paymentMethods.map((payment) => {
         const paymentMethodAreas = paymentMethodsJson.filter((item) => item.paymentmethod.toUpperCase() === payment);
@@ -71,12 +75,8 @@ const selectOption = document.getElementById("select");
         };
     });
     renderD3(paymentData);
-    const GEOres = await fetch("https://cartomap.github.io/nl/wgs84/provincie_2020.topojson");
-    const GEOjson = await GEOres.json();
     const bbox = [11.825, 53.7253321, -68.6255319, 7.2274985];
     GEOjson.bbox = bbox;
-    const sellingPointsResponse = await fetch("https://opendata.rdw.nl/resource/cgqw-pfbp.json");
-    const sellingPointsJson = await sellingPointsResponse.json();
     const areas = Object.values(AreaManagerID);
     const formattedArraySellingPoints = areas.map((area) => {
         const paymentMethodAreas = sellingPointsJson.filter((item) => item.areamanagerid === area);
@@ -152,7 +152,7 @@ function startDateData(arr) {
     });
     return typedFilterDatum;
 }
-function renderGEO(selection, data, sellingPoints, paymentData) {
+function renderGEO(selection, geoData, sellingPoints, paymentData) {
     const path = d3.geoPath();
     const zoom = d3.zoom().scaleExtent([1, 8]).on("zoom", zoomed);
     console.log(sellingPoints);
@@ -174,7 +174,8 @@ function renderGEO(selection, data, sellingPoints, paymentData) {
         .attr("fill", "#8d99ae")
         .attr("cursor", "pointer")
         .selectAll("path")
-        .data(topojson.feature(data, data.objects.provincie_2020).features)
+        .data(topojson.feature(geoData, geoData.objects.provincie_2020)
+        .features)
         .join("path")
         .attr("d", path)
         .on("click", clicked);
@@ -185,6 +186,7 @@ function renderGEO(selection, data, sellingPoints, paymentData) {
         .enter()
         .append("circle")
         .attr("cx", (data) => {
+        console.log(data.areas[0]);
         return projection([
             parseFloat(data.areas[0].location.longitude),
             parseFloat(data.areas[0].location.latitude),
