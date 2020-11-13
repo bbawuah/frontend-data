@@ -15,11 +15,12 @@ De wereld is continu in verandering. Technologisering zorgt ervoor dat we steeds
 ## Deelvragen
 
 * Hoeveel verkooppunten zijn er op nu ten opzichte van vijf jaar geleden?
+![Verkooppunten](https://github.com/bbawuah/frontend-data/blob/main/wikiAssets/Screenshot%202020-11-13%20at%2010.08.26.png)
 
 Om antwoord te kunnen geven op de vraag moeten we eerst in kaart brengen wat het aantal verkooppunten is in Nederland op dit moment en of er sprake is van een stijging of een daling.
 
-* Welke betalingsopties kennen we in Nederland?
-
+* Welke betalingsmethodes kennen we in Nederland?
+![Betalingsmethodes](https://github.com/bbawuah/frontend-data/blob/main/wikiAssets/Screenshot%202020-11-13%20at%2010.08.17.png)
 Het is belangrijk om te weten welke betalingsopties we op dit moment kennen in Nederland zodat we kunnen kijken naar welke betalingsopties wellicht zijn verdwenen en welke nieuwe betalingsopties we hebben gekregen.
 
 * Welke verkooppunten hebben deze nieuwe betalingsopties?
