@@ -1,4 +1,6 @@
-# functional-programming
+# functional-programming en frontend-data
+
+[Link naar project](https://bbawuah.github.io/frontend-data/)
 
 ## De Volkskrant
 
